@@ -1,4 +1,6 @@
 import turtle
+from argparse import ZERO_OR_MORE
+
 import numpy as np
 import matplotlib.pyplot as plt
 import random as rd
@@ -300,7 +302,17 @@ def getRule(iterations):
 
     return axiom
 
+def f():
+    raise ZeroDivisionError
+    print('damn')
+
+
 if __name__ == '__main__':
+    try:
+        f()
+    except ZeroDivisionError:
+        print('Деление на 0')
+
     step = 6
     phi = getRotateAngle()
     # test = gosperOnce([((0, 0), (step, 0))], 'A', 'R', 1)

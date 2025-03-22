@@ -2,9 +2,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter.colorchooser import askcolor
 
-print(3.3 * np.array([1,2,3]))
+s = ''
+with open('test.txt', 'r') as f:
+    temp = f.readline()
+    s += temp
 
-print(askcolor())
+    temp = f.readline()
+    s += temp
+
+    temp = f.readline()
+    s += temp
+
+    temp = f.readline()
+    s += temp
+
+    temp = f.readline()
+    s += temp
+
+    temp = f.readline()
+    s += temp
+
+    f.close()
+
+with open('test_write.txt', 'w') as f2:
+
+    f2.write('666')
+
+    f2.close()
+print(s)
 
 # Параметр a для масштабирования
 a = 1

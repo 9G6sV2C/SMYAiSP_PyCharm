@@ -6,39 +6,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 
-class FunctionPlotter:
-    def __init__(self, rootWindow):
-        self.rootWindow = rootWindow
-        self.rootWindow.title("Построение функций")
-
-        # Создаем фрейм для графика
-        self.frmCanvas = tk.Frame(rootWindow)
-        self.frmCanvas.pack()
-
-        # Инициализируем график
-        self.figure, self.ax = plt.subplots()
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.frmCanvas)
-        self.canvas.get_tk_widget().pack()
-
-        # Кнопка для рисования параболы
-        self.button = tk.Button(rootWindow, text="Нарисовать параболу", command=self.plot_parabola)
-        self.button.pack()
-
-    def plot_parabola(self):
-        # Генерируем случайный коэффициент
-        a = random.uniform(-5, 5)  # Случайное значение от -5 до 5
-
-        # Создаем данные для параболы
-        x = np.linspace(-10, 10, 400)
-        y = a * x ** 2
-
-        # Рисуем параболу
-        self.ax.plot(x, y, label=f'y = {a:.2f} * x^2')
-
-        # Обновляем график
-        self.ax.legend()
-        self.canvas.draw()
-
 def f1_input(x, a, b, c):
     res = np.array([])
     for el in x:
@@ -47,7 +14,7 @@ def f1_input(x, a, b, c):
             res = np.append(res, None)
             # raise ZeroDivisionError
         else:
-            res = np.append(res, temp)
+            res = np.append(res, a/temp)
     return res
 
 # Дельтоида
@@ -55,7 +22,7 @@ def f2_input(t): return np.array([2*np.cos(t)+np.cos(2*t),
                                   2*np.sin(t)-np.sin(2*t)])
 
 def f1Draw():
-    global canvas, GraphColor_var, graphStyle_var
+    global canvas, GraphColor, graphStyle_var
     global markerStyle_var, graphScale_var, approximation_var
 
     x = np.linspace(leftX_var.get(), rightX_var.get(), approximation_var.get())
@@ -64,12 +31,12 @@ def f1Draw():
     y *= graphScale_var.get()
 
     ax.plot(x, y,
-            markerStyle_var.get(), ls=graphStyle_var.get(), color=GraphColor_var)
+            markerStyle_var.get(), linestyle=graphStyle_var.get(), color=GraphColor)
 
     canvas.draw()
     
 def f2Draw():
-    global canvas, GraphColor_var, graphStyle_var
+    global canvas, GraphColor, graphStyle_var
     global markerStyle_var, graphScale_var, approximation_var
     # t = np.linspace(0, 2 * np.pi, 1000)
     t = np.linspace(leftX_var.get(), rightX_var.get(), approximation_var.get())
@@ -78,7 +45,7 @@ def f2Draw():
     x_y[1] *= graphScale_var.get()
 
     ax.plot(x_y[0], x_y[1],
-            markerStyle_var.get(), ls=graphStyle_var.get(), color=GraphColor_var)
+            markerStyle_var.get(), linestyle=graphStyle_var.get(), color=GraphColor)
 
     canvas.draw()
 
@@ -89,8 +56,8 @@ def CnvsClear():
 def SetBGColor(event): ax.patch.set_facecolor(askcolor()[1])
 
 def SetGraphColor(event):
-    global GraphColor_var
-    GraphColor_var = askcolor()[1]
+    global GraphColor
+    GraphColor = askcolor()[1]
 
 def check_x(*args):
     if leftX_var.get() <= rightX_var.get():
@@ -104,21 +71,130 @@ def check_t(*args):
     else:
         tErrmsg_var.set('Неверные границы t.')
 
+def ImportData():
+    global BGColor, GraphColor
+    with open('impAndExp_data.txt', 'r') as impFile:
+        # Жалко удалять
+        # print(graphStyle_var.get(), markerStyle_var.get(), BGColor, GraphColor,
+        #       graphScale_var.get(), approximation_var.get(), a_var.get(), b_var.get(),
+        #       c_var.get(), leftX_var.get(), rightX_var.get(), leftT_var.get(), rightT_var.get())
+
+        # 1) Стиль графика
+        temp_var = impFile.readline()[:-1]
+        graphStyle_var.set(temp_var)
+
+        # 2) Стиль маркеров
+        temp_var = impFile.readline()[:-1]
+        markerStyle_var.set(temp_var)
+
+        # 3) Цвет фона
+        temp_var = impFile.readline()[:-1]
+        BGColor = temp_var
+
+        # 4) Цвет графика
+        temp_var = impFile.readline()[:-1]
+        GraphColor = temp_var
+
+        # 5) Масштаб
+        temp_var = impFile.readline()[:-1]
+        graphScale_var.set(float(temp_var))
+
+        # 6) Степень аппроксимации
+        temp_var = impFile.readline()[:-1]
+        approximation_var.set(int(temp_var))
+
+        # 7) Значение a
+        temp_var = impFile.readline()[:-1]
+        a_var.set(int(temp_var))
+
+        # 8) Значение b
+        temp_var = impFile.readline()[:-1]
+        b_var.set(int(temp_var))
+
+        # 8) Значение c
+        temp_var = impFile.readline()[:-1]
+        c_var.set(int(temp_var))
+
+        # 10) Значение левой границы x
+        temp_var = impFile.readline()[:-1]
+        leftX_var.set(int(temp_var))
+
+        # 11) Значение правой границы x
+        temp_var = impFile.readline()[:-1]
+        rightX_var.set(int(temp_var))
+
+        # 12) Значение левой границы t
+        temp_var = impFile.readline()[:-1]
+        leftT_var.set(float(temp_var))
+
+        # 13) Значение правой границы t
+        temp_var = impFile.readline()[:-1]
+        rightT_var.set(float(temp_var))
+
+        # ещё графики но пофиг, устал
+
+        impFile.close()
+
+def ExportData():
+    with open('impAndExp_data.txt', 'w') as expFile:
+        # 1) Стиль графика
+        expFile.write(graphStyle_var.get())
+        expFile.write('\n')
+        # 2) Стиль маркеров
+        expFile.write(markerStyle_var.get())
+        expFile.write('\n')
+        # 3) Цвет фона
+        expFile.write(BGColor)
+        expFile.write('\n')
+        # 4) Цвет графика
+        expFile.write(GraphColor)
+        expFile.write('\n')
+        # 5) Масштаб
+        expFile.write(str(graphScale_var.get()))
+        expFile.write('\n')
+        # 6) Степень аппроксимации
+        expFile.write(str(approximation_var.get()))
+        expFile.write('\n')
+        # 7) Значение a
+        expFile.write(str(a_var.get()))
+        expFile.write('\n')
+        # 8) Значение b
+        expFile.write(str(b_var.get()))
+        expFile.write('\n')
+        # 8) Значение c
+        expFile.write(str(c_var.get()))
+        expFile.write('\n')
+        # 10) Значение левой границы x
+        expFile.write(str(leftX_var.get()))
+        expFile.write('\n')
+        # 11) Значение правой границы x
+        expFile.write(str(rightX_var.get()))
+        expFile.write('\n')
+        # 12) Значение левой границы t
+        expFile.write(str(leftT_var.get()))
+        expFile.write('\n')
+        # 13) Значение правой границы t
+        expFile.write(str(rightT_var.get()))
+        expFile.write('\n')
+
+        # ещё графики но пофиг, устал
+
+        expFile.close()
+
 if __name__ == '__main__':
     root = tk.Tk()
     root.geometry("700x500")
     frmSttngs = tk.Frame(root)
     frmCanvas = tk.Frame(root)
     plt.axis('equal')
-    # color_RGB, color_HEX = (0,0,0), '#000000'
 
     figure, ax = plt.subplots()
     canvas = FigureCanvasTkAgg(figure, master=frmCanvas)
     toolbar = NavigationToolbar2Tk(canvas, frmCanvas)
     toolbar.update()
 
-    btnImport = tk.Button(frmSttngs, text='⤓')
-    btnExport = tk.Button(frmSttngs, text='⤒')
+    btnImport = tk.Button(frmSttngs, text='⤓', width=4, command=ImportData)
+    btnExport = tk.Button(frmSttngs, text='⤒', width=4, command=ExportData)
 
     graphStyles = ['-', '--', '-.']
     graphStyle_var = tk.StringVar(value=graphStyles[0])
@@ -130,8 +206,8 @@ if __name__ == '__main__':
     cmbMarkerStyle = ttk.Combobox(frmSttngs, textvariable=markerStyle_var,
                                   values=markerStyles, state='readonly', width=6)
 
-    BGColor_var = '#ffffff'
-    GraphColor_var = '#000'
+    BGColor = '#ffffff'
+    GraphColor = '#000'
     btnBGColor = tk.Button(frmSttngs, text='Цвет фона')
     btnBGColor.bind('<Button-1>', SetBGColor)
     btnGraphColor = tk.Button(frmSttngs, text='Цвет графика')
@@ -142,10 +218,10 @@ if __name__ == '__main__':
         frmSttngs, label='Выберете масштаб:', orient=tk.HORIZONTAL, length=150,
         from_=0.5, to=4, tickinterval=1, resolution=0.1, variable=graphScale_var, width=12)
 
-    approximation_var = tk.IntVar(root, value=1)
+    approximation_var = tk.IntVar(root, value=100)
     sclApproximation = tk.Scale(
         frmSttngs, label='Аппроксимация:', orient=tk.HORIZONTAL, length=150,
-        from_=10, to=120, tickinterval=50, resolution=10, variable=approximation_var, width=12)
+        from_=10, to=1000, tickinterval=270, resolution=45, variable=approximation_var, width=12)
 
     a_var = tk.IntVar(root, value=1)
     b_var = tk.IntVar(root, value=2)
@@ -172,8 +248,8 @@ if __name__ == '__main__':
     entLeftX = tk.Entry(frmSttngs, width=4, textvariable=leftX_var)
     entRightX = tk.Entry(frmSttngs, width=4, textvariable=rightX_var)
 
-    leftT_var = tk.IntVar(root, value=-3)
-    rightT_var = tk.IntVar(root, value=3)
+    leftT_var = tk.DoubleVar(root, value=-2*np.pi)
+    rightT_var = tk.DoubleVar(root, value=2*np.pi)
     tErrmsg_var = tk.StringVar(root)
     leftT_var.trace_add(mode='write', callback=check_t)
     rightT_var.trace_add(mode='write', callback=check_t)

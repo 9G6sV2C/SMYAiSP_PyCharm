@@ -11,7 +11,7 @@ def f1_input(x, a, b, c):
     for el in x:
         temp = np.sin(b * el + c)
         if temp == 0:
-            res = np.append(res, None)
+            res = np.append(res, 0)
             # raise ZeroDivisionError
         else:
             res = np.append(res, a/temp)

@@ -2,6 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tkinter.colorchooser import askcolor
 
+x = [1, 2, 3]
+y = [1, None, 3]
+plt.plot(x,y)
+plt.show()
+
 s = ''
 with open('test.txt', 'r') as f:
     temp = f.readline()

@@ -1,14 +1,13 @@
 import tkinter as tk
 import numpy as np
 from tkinter.colorchooser import askcolor
-from collections.abc import Iterable
 
 def ClrCanvas(event):
     cnvs.delete('all')
 
 def SetColor(event):
     global _color
-    RGB, _color = askcolor()  # запоминаем результат выбора цвета # !!!
+    RGB, _color = askcolor()  # запоминаем результат выбора цвета
     
 def ChoiceMaxPowerByType():
     if _curveType.get() == 0: # кривая Коха
@@ -105,18 +104,7 @@ def getDragonPoints(order):
         DirSign *= -1
     return res
 
-def Gosper(s, order):
-    # с помощью L-систем
-    # A,B - вперёд, + - поворот на pi/3 влево, a - поворот на pi/3 вправо
-    for _ in range(order):
-        if s == 'A':
-            s = s.replace('A', 'A-B--B+A++AA+B-')
-        else:
-            s = s.replace('A', 'A-B--B+A++AA+B-')
-            s = s.replace('B', '+A-BB--B-A++A+B')
-    return s
-
-def gosperOnce(arrLines, arrType, order, rotAngle):
+def getGosperSections(arrLines, arrType, order, rotAngle):
     
     # ф-я нахождения коорд. 3-ей вершины в правильном треугольнике по 2 другим
     def thirdApex(*points):  # points -> ( (x1, y1), (x2, y2)) )
@@ -139,10 +127,7 @@ def gosperOnce(arrLines, arrType, order, rotAngle):
 
         return rotated_vector
 
-    def getRotateAngle():
-        return 0.333473172252  # (в радианах) вычеслен в desmos экперементально
-    
-    
+
     if order == 0:
         return arrLines
     else:
@@ -193,19 +178,12 @@ def gosperOnce(arrLines, arrType, order, rotAngle):
                 finalConv.append(newConv[i])
             finalRule += newRule
 
-        return gosperOnce(finalConv, finalRule, order-1, rotAngle)
+        return getGosperSections(finalConv, finalRule, order-1, rotAngle)
 
 def drawCurve(event):
-    # Универсальное решение для списков с любой глубиной вложенности:
-    def flatten(l):
-        for el in l:
-            if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
-                yield from flatten(el)
-            else:
-                yield el
-
     # пусть перед каждым рисованием будем очищать рисунок
     ClrCanvas(event)
+
     if _curveType.get() == 0:  # кривая Коха
         x1 = 0
         y1 = cnvs.winfo_height()
@@ -213,15 +191,19 @@ def drawCurve(event):
         y2 = 0
         # рекурсия для Коха
         Koch(_curvePower.get(), x1, y1, x2, y2)
+
     elif _curveType.get() == 1: # треугольник Серпинского
         Sierpinski(_curvePower.get(),0, cnvs.winfo_height() - 20, cnvs.winfo_width() - 10)
+
     elif _curveType.get() == 2: # кривая дракона
         points = getDragonPoints(_curvePower.get())
         cnvs.create_line(points, fill=_color, width=_penWidth.get())
+
     else: # Кривая Госпера
         # rotAngle (в радианах) вычеслен экперементально в desmos
-        points_temp = gosperOnce([((0,0),(0,6))], 'A', _curvePower.get(), 0.333473172252)
-        points = list(flatten(points_temp))
+        points = np.array(getGosperSections([((0,0),(0,6))], 'A', _curvePower.get(), 0.333473172252))
+        points = list(points.flatten())
+
         for i in range(len(points)):
             points[i] *= 40
             if (i+1) % 2 == 0:
@@ -240,12 +222,11 @@ if __name__ == '__main__':
     frmSettings.pack(side=tk.RIGHT)
 
     cnvs = tk.Canvas(frmPicture, width=400, height=400)
-    cnvs.create_rectangle(0,0, 400, 400, outline='#fff', fill = '#fff')
+    cnvs.create_rectangle(0,0, 400, 400, outline='#fff', fill='#fff')
     cnvs.pack(fill=tk.BOTH, expand=1)
 
     frm1 = tk.Frame(frmSettings)
-    _curveType = tk.IntVar()
-    _curveType.set(0)
+    _curveType = tk.IntVar(value=0)
     rdb0 = tk.Radiobutton(
         frm1, text="Кривая Коха", variable=_curveType, value=0,
         command=lambda: (ChoiceMaxPowerByType(), ChoiceMaxWidthByType()))
@@ -268,13 +249,11 @@ if __name__ == '__main__':
     _color = "#000"
     btnColor = tk.Button(frm1, text="Цвет")
     btnColor.bind('<Button-1>', SetColor)
-    _penWidth = tk.IntVar()
-    _penWidth.set(1) # установим ее равной 1 по умолчанию
+    _penWidth = tk.IntVar(value=1)
     sclPenWidth = tk.Scale(
         frm2, label="Толщина линии", orient=tk.HORIZONTAL, length=150,
         from_=1, to=10, tickinterval=1, resolution=1, variable=_penWidth)
-    _curvePower=tk.IntVar()
-    _curvePower.set(0)
+    _curvePower=tk.IntVar(value=0)
     sclPower = tk.Scale(
         frm2, label="Порядок кривой", orient=tk.HORIZONTAL, length=150,
         from_=0, to=6, tickinterval=1, resolution=1, variable=_curvePower)

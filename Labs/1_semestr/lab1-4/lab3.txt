@@ -1,0 +1,120 @@
+----------------------------------------------------- A -----------------------------------------------------
+n = int(input())
+pendingTasks = set()
+reqs = list()
+
+for i in range(n):
+    taskNum, res = input().split()
+    if res == "R":
+        pendingTasks.add(taskNum)
+    elif res == "A":
+        pendingTasks.discard(taskNum)
+    else:
+        reqs.append(len(pendingTasks))
+
+print(*reqs, sep='\n')
+
+----------------------------------------------------- B -----------------------------------------------------
+numOfLect, numOfKnow = map(int, input().split())
+knowledge = set(map(int, input().split()))
+numOfTasks, numOfRecs = map(int, input().split())
+
+accTasks = set()
+for i in range(numOfRecs):
+    currTaskNum, currNumOfTopics, currNumsTopics =  input().split(' ', 2)
+    currNumsTopics = set(map(int, currNumsTopics.split()))
+
+    if currNumsTopics.issubset(knowledge):
+        accTasks.add(currTaskNum)
+
+print(len(accTasks))
+print(*sorted(list(map(int, accTasks))))
+
+----------------------------------------------------- C -----------------------------------------------------
+n, k = map(int, input().split())
+
+forgorCount, sameMax = 0, 0
+topic_days = dict()
+for i in range(n):
+    m, currTopics = input().split(' ', 1)
+    currTopics, m = set(currTopics.split()), int(m)
+
+    for el in currTopics:
+        if topic_days.get(el, -999) < i:
+            forgorCount += 1
+            topic_days[el] = k+i#+1 # конпенсируем забывание в тек. день которого по усл нету
+        else:
+            topic_days[el] += 1
+
+
+        # не найден (вернёт -1) или забыт ( будет <= 0)
+        # if topic_days.get(el, -1) <= 0:
+        #     forgorCount += 1
+        #     topic_days[el] = k#+1 # конпенсируем забывание в тек. день которого по усл нету
+        # else:
+        #     topic_days[el] += 1
+
+    # for key in topic_days:
+    #     topic_days[key] -= 1 # забываем. Если упало  <=0 -> забыли
+
+print(forgorCount)
+
+----------------------------------------------------- D -----------------------------------------------------
+n, m = map(int, input().split())
+
+# тема - кол-во заданий которые смог решить
+topic_harit = dict()
+# тема - кол-во заданий в которых он есть
+topic_tasksNum = dict()
+
+for i in range(n):
+    currStatus, currNums, currTopics = input().split(' ', 2)
+    currNums = int(currNums)
+    currTopics = set(map(int, (currTopics.split())))
+
+    for el in currTopics:
+        if el in topic_tasksNum:
+            topic_tasksNum[el] += 1
+        else:
+            topic_tasksNum[el] = 1
+
+    if currStatus == "A":
+        for el in currTopics:
+            if el in topic_harit:
+                topic_harit[el] += 1
+            else:
+                topic_harit[el] = 1
+
+k = 0
+learn = list()
+for key in topic_tasksNum:
+    if topic_tasksNum[key] / 2 >= topic_harit.get(key, -1):
+        k += 1
+        learn.append(key)
+
+print(k)
+print(*sorted(learn))
+
+----------------------------------------------------- E -----------------------------------------------------
+n, k = map(int, input().split())
+
+openCount, sameMax = 0, 0
+tab_opens = dict()
+currTabs = set()
+for i in range(n):
+    m, currTopics = input().split(' ', 1)
+    currTopics, m = set(currTopics.split()), int(m)
+    
+    if len(currTabs) > k:
+        currTabs.clear()
+    
+    openCount += len(currTopics - currTabs)
+    # среди вкладок которые будут открыты на тек. ит.
+    for el in currTopics - currTabs:
+        if el in tab_opens:
+            tab_opens[el] += 1
+        else:
+            tab_opens[el] = 1
+    currTabs.update(currTopics)
+
+print(openCount, max(tab_opens.values()), sep='\n')

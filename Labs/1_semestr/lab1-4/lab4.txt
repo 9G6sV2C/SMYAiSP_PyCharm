@@ -1,0 +1,108 @@
+----------------------------------------------------- A -----------------------------------------------------
+n, d = map(int, input().split())
+l = sorted(list(map(int, input().split())))
+#print(*l)
+
+sepsNumTotal = 0
+minSepsNum, maxSepsNum = n-1, 0
+currSepsNum = 0
+for i in range(1,n):
+    if l[i] - l[i-1] <= d:
+        sepsNumTotal += 1
+        currSepsNum += 1
+    else:
+        if currSepsNum < minSepsNum:
+            minSepsNum = currSepsNum
+        if currSepsNum > maxSepsNum:
+            maxSepsNum = currSepsNum
+        currSepsNum = 0
+
+if currSepsNum < minSepsNum:
+    minSepsNum = currSepsNum
+if currSepsNum > maxSepsNum:
+    maxSepsNum = currSepsNum
+
+print(n-1-sepsNumTotal+1, minSepsNum+1, maxSepsNum+1, sep='\n')
+
+----------------------------------------------------- B -----------------------------------------------------
+n, m, k = map(int, input().split())
+l1 = list(map(int, input().split()))
+l2 = list(map(int, input().split()))
+
+FCount, SCount = 0, 0
+is1queue = True
+cards = set()
+
+i, j = 0, 0
+while i<n or j<m:
+    currCards = 0
+
+    if is1queue:
+        while currCards < k and i<n:
+            if l1[i] not in cards:
+                cards.add(l1[i])
+                currCards += 1
+                FCount += 1
+            i += 1
+        is1queue = not is1queue
+    
+    else:
+        while currCards < k and j<m:
+            if l2[j] not in cards:
+                cards.add(l2[j])
+                currCards += 1
+                SCount += 1
+            j += 1
+        is1queue = not is1queue
+
+print(FCount, SCount)
+
+----------------------------------------------------- C -----------------------------------------------------
+n = int(input())
+offset_flower = dict()
+
+currOffset = 0
+for i in range(n):
+    currDelta, currFlower = input().split(' ', 1)
+    currDelta = int(currDelta)
+
+    currOffset += currDelta
+    offset_flower[currFlower] = currOffset
+
+print(*(el[0] for el in sorted(offset_flower.items(), key=lambda item:( item[1], item[0]))), sep='\n')
+
+----------------------------------------------------- D -----------------------------------------------------
+n = int(input())
+STimes = list({key:value for key, value in zip(list(map(int, input().split())), list(input())) if value == "S"}.keys())
+
+minDelta, maxDelta = 1_000_000_000, 0
+for i in range(1, len(STimes)):
+    curr = STimes[i] - STimes[i-1]
+    if curr < minDelta:
+        minDelta = curr
+    if curr > maxDelta:
+        maxDelta = curr
+
+print(minDelta, maxDelta, sep='\n')
+
+----------------------------------------------------- E -----------------------------------------------------
+n = int(input())
+
+sculs_repeats = dict()
+allColors = set()
+lastAdded = 0
+for i in range(n):
+    currScul, m, currColors = input().split(' ', 2)
+    currColors = set(currColors.split())
+
+    if (currScul not in sculs_repeats) or not(currColors.issubset(allColors)):
+        lastAdded = i
+
+        if currScul in sculs_repeats:
+            sculs_repeats[currScul] += 1
+        else:
+            sculs_repeats[currScul] = 1
+
+        allColors.update(currColors)
+
+print(sum(list(sculs_repeats.values())), len(sculs_repeats), max(sculs_repeats.values()), lastAdded+1, sep='\n')

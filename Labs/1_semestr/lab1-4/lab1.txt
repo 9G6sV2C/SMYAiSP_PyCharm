@@ -1,0 +1,139 @@
+----------------------------------------------------- A -----------------------------------------------------
+import math
+
+#123
+
+z1, m1 = map(int, input().split())
+z2, m2 = map(int, input().split())
+z3, m3 = map(int, input().split())
+
+print(math.ceil(z1/m1 + z2/m2 + z3/m3))
+
+----------------------------------------------------- B -----------------------------------------------------
+n = int(input())
+
+t1, t2 = map(int, input().split())
+
+minDiffrent = t1 - t2
+maxDifficulty = t1
+maxNum = 1
+
+#for x in range(2, n+1):
+#    print(x)
+
+for i in range(2, n+1):
+    t1, t2 = map(int, input().split())
+
+    if t1 - t2 < minDiffrent:
+        minDiffrent = t1 - t2
+        maxDifficulty = t1
+        maxNum = i
+    elif t1 - t2 == minDiffrent:
+        if t1 > maxDifficulty:
+            minDiffrent = t1 - t2
+            maxDifficulty = t1
+            maxNum = i
+        elif t1 == maxDifficulty:
+            if i > maxNum:
+                minDiffrent = t1 - t2
+                maxDifficulty = t1
+                maxNum = i
+
+
+print(maxNum)
+
+----------------------------------------------------- C -----------------------------------------------------
+import math
+
+n = int(input())
+liftCap = int(input())
+HaritFloor = int(input())
+
+lift = [0]*liftCap
+numOfFullLift = math.floor(n/liftCap) 
+ans = 0
+
+# полные лифты
+for i in range(numOfFullLift):
+
+    ans += liftCap # заходит liftCap людей 
+
+    for j in range(liftCap):
+        lift[j] = int(input())
+    lift.sort()
+
+    ans += lift[0] - 1 # поднимаемся с 1 до наименьшего
+    ans += 1 # вышел человек
+
+    for i in range(1, liftCap):
+        ans += lift[i] - lift[i-1]
+        ans += 1 # вышел человек
+    
+    ans += lift[liftCap-1] - 1 # спускаемся с макс. этажа до 1
+
+lift.clear()
+
+# последняя, неполная пачка
+for i in range(liftCap): 
+    if i < n - (numOfFullLift * liftCap):
+        lift.append(int(input()))
+    elif i == n - (numOfFullLift * liftCap):
+        lift.append(HaritFloor)
+lift.sort()
+
+ans += len(lift) # заходит len(lift) людей 
+
+ans += lift[0] - 1 # поднимаемся с 1 до наименьшего
+ans += 1 # вышел человек
+
+if lift[0] != HaritFloor: # наименьший не есть этаж Харитона
+    for i in range(1, liftCap): 
+        ans += lift[i] - lift[i-1] # поднимаемся
+        ans += 1 # вышел человек
+
+        if lift[i] == HaritFloor:
+            break
+
+print(ans)
+
+----------------------------------------------------- D -----------------------------------------------------
+v = int(input())
+
+s = input()
+
+print(s.count("++"))
+
+h = s.split("++")
+
+measureOfWorst = 0
+worstDishNum = -2
+for ss in h:
+    if ss.count('-') > measureOfWorst:
+        measureOfWorst = ss.count('-')
+        worstDishNum = h.index(ss)
+
+print(worstDishNum + 1, measureOfWorst)
+
+----------------------------------------------------- E -----------------------------------------------------
+n = int(input())
+
+deviation = 0
+minD, minDNum = 0, -1
+maxD, maxDNum = 0, -1
+
+h = input()
+
+for i in range(len(h)):
+    deviation += 1 if h[i] == '+' else -1
+
+    if deviation < minD:
+        minD = deviation
+        minDNum = i
+
+    if deviation >= maxD:
+        maxD = deviation
+        maxDNum = i
+
+print(abs(minD)+1)
+print(minDNum+2)
+print(maxDNum+2)

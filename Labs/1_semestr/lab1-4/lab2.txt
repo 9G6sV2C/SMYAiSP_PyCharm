@@ -1,0 +1,125 @@
+----------------------------------------------------- A ------------------------------------------------------
+n, m = map(int, input().split())
+minD = 1e9
+maxD = 0
+
+suns = []*n
+reqs = []*m
+
+suns = list(map(int, input().split()))
+reqs = list(map(int, input().split()))
+
+s = 0
+r = 0
+
+while r < m:
+    while s < n:
+        if suns[s] > reqs[r]: 
+            if suns[s] - reqs[r] < minD:
+                minD = suns[s] - reqs[r]
+            if suns[s] - reqs[r] > maxD:
+                maxD = suns[s] - reqs[r]
+            break
+        s+=1
+    r+=1
+
+print(minD, maxD, sep='\n')
+
+----------------------------------------------------- B -----------------------------------------------------
+# ТЕХНИКА ПОДСЧЁТА ?
+
+n = int(input())
+l = list(map(int, input().split()))
+
+ll = []
+ll.append([0, 0])
+for i in range(n):
+    ll.append([i+1, l[i]])
+
+#r = [[3, 1], [1, 2], [4, 3], [5, 4], [2, 5]]
+
+# Сортируем по первому элементу каждого подсписка
+
+ll.sort(key=lambda x: x[1])
+#ll.append([1, 0])
+
+#print(ll)
+
+ans = 0
+for i in range(1,n + 1):
+    ans += abs(ll[i][0] - ll[i - 1][0])
+    if ll[i][0] - ll[i - 1][0] < 0:
+        ans += 2
+
+print(ans)
+ 
+----------------------------------------------------- C -----------------------------------------------------
+n, s = map(int, input().split())
+
+l = sorted(list(map(int, input().split())), reverse=True)
+l.append(None)
+
+currTime = 0
+i = 0
+while currTime < s and i < n:
+    currTime += l[i]
+    while l[i] == l[i + 1]:
+        currTime += l[i]
+        i += 1
+    i += 1
+
+print(i, currTime, sep='\n')
+
+----------------------------------------------------- D -----------------------------------------------------
+n, z = map(int, input().split())
+
+l = list(map(int, input().split()))
+l_orig = l
+
+# счиатем кол-во н енулевые эл., их кол-во прибавляем к ans
+max_a = 0
+ans = 0
+for k in range(1_000_000 + 1):
+    countOfNotZeros = 0
+    for i in range(n):
+
+        if k == 0: # избавляемся от лишний действий
+            if l_orig[i] > max_a: # заодно нойдём макс.
+                max_a = l_orig[i]
+
+        if l[i] > 0:
+            l[i] -= 1
+            countOfNotZeros += 1
+
+    ans += countOfNotZeros
+    
+    if countOfNotZeros == 0: # успеем решить всё
+        k = max_a
+        break
+    if ans > z:
+        # отматываем 1 действие назад
+        ans -= countOfNotZeros
+        break
+    
+print(k, ans, sep='\n')
+
+----------------------------------------------------- E -----------------------------------------------------
+freeT, n, k = map(int, input().split())
+objs = list(map(int, input().split()))
+
+currTime = 0
+lastObj = 0
+for i in range(n):
+    currTime += objs[i]*2 + k 
+    if currTime > freeT:
+        # откатываемся на 1 действие назад
+        currTime -= objs[i]*2 + k 
+        i -= 1
+        break
+
+i+=1 # переход от индексов к номерам
+print(i)
+if i != 0:
+    print(f"{(freeT - ((sum(objs[:i]))*2)) / i:09.7f}")
+else:
+    print(f"{0:09.7f}")
